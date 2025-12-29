@@ -1,0 +1,10 @@
+## Interface: 20505
+## Title: |cffffffffZakaji|cffFFC0CBBalls|r
+## Notes: Get to five and win the prize!
+## Author: Poutsozos
+## Version: 50.0
+## LoadWith: Rogue
+## IconTexture: Interface\AddOns\ZakajiPoints\icon
+## SavedVariablesPerCharacter: ZakajiBallsDB
+
+ZakajiPoints.lua
