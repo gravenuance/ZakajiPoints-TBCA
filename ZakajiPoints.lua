@@ -1,7 +1,6 @@
 local _, class = UnitClass("player")
 if class ~= "ROGUE" then return end
 
-local addonName = ...
 local defaults = {
     sound = true,
     attachToNameplate = false,
@@ -27,44 +26,36 @@ local BASE_SCALE = 1.0
 local NAMEPLATE_SCALE = 0.7
 local frame = CreateFrame("Frame", "ZakajiPointsFrame", UIParent)
 
-local function HasTargetNameplate()
-    if not C_NamePlate or not C_NamePlate.GetNamePlateForUnit then
-        return false
-    end
-    return C_NamePlate.GetNamePlateForUnit("target") ~= nil
-end
-
 local function PositionFrame()
     frame:ClearAllPoints()
+
+    if not db then InitDB() end
+
     local wantNameplate = db.attachToNameplate
-    local plate = (wantNameplate and C_NamePlate and C_NamePlate.GetNamePlateForUnit) and
-        C_NamePlate.GetNamePlateForUnit("target") or nil
-    if wantNameplate then
-        if plate and plate.UnitFrame then
-            frame:SetScale(NAMEPLATE_SCALE)
-            frame:SetPoint("TOP", plate.UnitFrame, "BOTTOM", 0, 30)
-            frame:Show()
-            return
-        elseif plate then
-            -- fallback: plate itself
-            frame:SetScale(NAMEPLATE_SCALE)
-            frame:SetPoint("TOP", plate, "BOTTOM", 0, 30)
-            frame:Show()
-            return
-        else
-            -- no plate (target has no nameplate shown)
-            --frame:SetScale(BASE_SCALE)
-            --frame:SetPoint("CENTER", UIParent, "CENTER", 0, -100)
+
+    if wantNameplate and C_NamePlate and C_NamePlate.GetNamePlateForUnit then
+        local plate = C_NamePlate.GetNamePlateForUnit("target")
+
+        if not plate or not UnitExists("target") then
             frame:Hide()
+
             return
         end
-    else
-        frame:SetScale(BASE_SCALE)
+
+        local anchor = plate.UnitFrame or plate
+
+        frame:SetScale(NAMEPLATE_SCALE)
+        frame:SetPoint("TOP", anchor, "BOTTOM", 0, 20)
         frame:Show()
-        local screenH = UIParent:GetHeight()
-        local offsetY = -screenH * (1 / 5)
-        frame:SetPoint("CENTER", UIParent, "CENTER", 0, offsetY)
+        return
     end
+
+    frame:SetScale(BASE_SCALE)
+    frame:Show()
+
+    local screenH = UIParent:GetHeight()
+    local offsetY = -screenH * (1 / 5)
+    frame:SetPoint("CENTER", UIParent, "CENTER", 0, offsetY)
 end
 
 frame:SetSize((SIZE * NUM_POINTS) + (GAP * (NUM_POINTS - 1)), SIZE)
@@ -103,7 +94,7 @@ local function UpdateComboPoints()
         return
     end
 
-    local cp = UnitPower("player", Enum.PowerType.ComboPoints)
+    local cp = GetComboPoints("player", "target") or 0
 
     for i = 1, NUM_POINTS do
         if i <= cp then
@@ -121,32 +112,12 @@ local function UpdateComboPoints()
     lastCP = cp
 end
 
---[[ local function UpdateComboPoints()
-    if not UnitExists("target") or UnitIsDead("target") then
-        for i = 1, NUM_POINTS do
-            fills[i]:Hide()
-        end
-        return
-    end
-
-    local cp = GetComboPoints("player", "target") or 0
-
-    for i = 1, NUM_POINTS do
-        if i <= cp then
-            fills[i]:Show()
-        else
-            fills[i]:Hide()
-        end
-    end
-end ]]
-
-frame:SetScript("OnEvent", function(self, event, arg1, arg2)
+frame:SetScript("OnEvent", function(self, event, arg1)
     if event == "PLAYER_TARGET_CHANGED" then
         PositionFrame()
         UpdateComboPoints()
     elseif event == "UNIT_POWER_UPDATE" then
-        PositionFrame()
-        if arg1 == "player" and arg2 == "COMBO_POINTS" then
+        if arg1 == "player" then
             UpdateComboPoints()
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
@@ -159,6 +130,7 @@ end)
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 frame:RegisterEvent("UNIT_POWER_UPDATE")
+
 
 SLASH_ZAKAJIBALLS1 = "/balls"
 SlashCmdList.ZAKAJIBALLS = function(msg)
