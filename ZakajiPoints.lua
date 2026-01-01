@@ -4,6 +4,7 @@ if class ~= "ROGUE" then return end
 local defaults = {
     sound = true,
     attachToNameplate = false,
+    energyTicker = true,
 }
 
 local db
@@ -16,6 +17,9 @@ local function InitDB()
         end
     end
     db = ZakajiBallsDB
+    if GetCVar("nameplateMaxDistance") ~= "41" then
+        SetCVar("nameplateMaxDistance", "41")
+    end
 end
 
 local NUM_POINTS = 5
@@ -144,9 +148,16 @@ SlashCmdList.ZAKAJIBALLS = function(msg)
         db.attachToNameplate = not db.attachToNameplate
         print("ZakajiBalls: attachToNameplate is now " .. (db.attachToNameplate and "ON" or "OFF"))
         PositionFrame()
+    elseif msg == "ticker" then
+        db.energyTicker = not db.energyTicker
+        if ZakajiEnergy_UpdateIcon then
+            ZakajiEnergy_UpdateIcon()
+        end
+        print("ZakajiBalls: energy ticker is now " .. (db.energyTicker and "ON" or "OFF"))
     else
         print("ZakajiBalls commands:")
         print("/balls sound - toggle sound on 5 combo points")
         print("/balls nameplate - toggle attaching under target nameplate")
+        print("/balls ticker - toggle energy ticker display")
     end
 end
