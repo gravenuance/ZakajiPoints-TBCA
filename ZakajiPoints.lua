@@ -20,6 +20,9 @@ local function InitDB()
     if GetCVar("nameplateMaxDistance") ~= "41" then
         SetCVar("nameplateMaxDistance", "41")
     end
+    if GetCVar("nameplateOccludedAlphaMult") ~= "1" then
+        SetCVar("nameplateOccludedAlphaMult", "1")
+    end
 end
 
 local NUM_POINTS = 5
