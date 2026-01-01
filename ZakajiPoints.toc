@@ -8,3 +8,4 @@
 ## SavedVariablesPerCharacter: ZakajiBallsDB
 
 ZakajiPoints.lua
+ZakajiEnergy.lua
