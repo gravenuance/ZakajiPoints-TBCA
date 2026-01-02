@@ -9,3 +9,4 @@
 
 ZakajiPoints.lua
 ZakajiEnergy.lua
+ZakajiFrost.lua
